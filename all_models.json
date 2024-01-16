@@ -1,0 +1,89 @@
+[
+    {
+        "model": "recordstore.record",
+        "pk": 1,
+        "fields": {
+            "artist": "Artist 1",
+            "album": "Album 1",
+            "rel_date": "2023-01-01T12:00:00Z",
+            "price": "29.99"
+        }
+    },
+    {
+        "model": "recordstore.record",
+        "pk": 2,
+        "fields": {
+            "artist": "Artist 2",
+            "album": "Album 2",
+            "rel_date": "2023-02-01T12:00:00Z",
+            "price": "19.99"
+        }
+    },
+    {
+        "model": "recordstore.record",
+        "pk": 3,
+        "fields": {
+            "artist": "Artist 3",
+            "album": "Album 3",
+            "rel_date": "2023-03-01T12:00:00Z",
+            "price": "24.99"
+        }
+    },
+    {
+        "model": "recordstore.address",
+        "pk": 1,
+        "fields": {
+            "street": "123 Main St",
+            "city": "City 1",
+            "state": "CA",
+            "zip": "12345"
+        }
+    },
+    {
+        "model": "recordstore.address",
+        "pk": 2,
+        "fields": {
+            "street": "456 Oak Ave",
+            "city": "City 2",
+            "state": "NY",
+            "zip": "67890"
+        }
+    },
+    {
+        "model": "recordstore.address",
+        "pk": 3,
+        "fields": {
+            "street": "789 Elm Blvd",
+            "city": "City 3",
+            "state": "TX",
+            "zip": "54321"
+        }
+    },
+    {
+        "model": "recordstore.store",
+        "pk": 1,
+        "fields": {
+            "name": "Store 1",
+            "records": 1,
+            "address": 1
+        }
+    },
+    {
+        "model": "recordstore.store",
+        "pk": 2,
+        "fields": {
+            "name": "Store 2",
+            "records": 2,
+            "address": 2
+        }
+    },
+    {
+        "model": "recordstore.store",
+        "pk": 3,
+        "fields": {
+            "name": "Store 3",
+            "records": 3,
+            "address": 3
+        }
+    }
+]
