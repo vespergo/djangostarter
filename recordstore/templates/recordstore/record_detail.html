@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ record }}</title></head>
+<body>
+<h1>{{ record.artist }} &mdash; {{ record.album }}</h1>
+<p>Genre: {{ record.genre|default:"Unknown" }}</p>
+<p>Released: {{ record.rel_date }}</p>
+<p>Price: ${{ record.price }}</p>
+<h2>Available at</h2>
+{% if stores %}
+<ul>
+{% for store in stores %}
+  <li><a href="{% url 'store_detail' store.id %}">{{ store.name }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>Not available at any store.</p>
+{% endif %}
+<p><a href="{% url 'index' %}">Back to all records</a></p>
+</body>
+</html>

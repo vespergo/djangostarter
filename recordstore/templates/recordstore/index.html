@@ -1,9 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Record Store</title></head>
+<body>
+<h1>Records</h1>
+<form method="get">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search artist or album...">
+  <button type="submit">Search</button>
+</form>
 {% if record_list %}
-    <ul>
-    {% for record in record_list %}
-        <li><a href="/polls/{{ record.id }}/">{{ record.album }}</a></li>
-    {% endfor %}
-    </ul>
+<ul>
+{% for record in record_list %}
+  <li>
+    <a href="{% url 'record_detail' record.id %}">{{ record.artist }} &mdash; {{ record.album }}</a>
+    (${{ record.price }}, {{ record.rel_date }})
+  </li>
+{% endfor %}
+</ul>
 {% else %}
-    <p>No records found.</p>
+<p>No records found.</p>
 {% endif %}
+<p><a href="{% url 'store_list' %}">Browse Stores</a></p>
+</body>
+</html>

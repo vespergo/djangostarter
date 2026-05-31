@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>Stores</title></head>
+<body>
+<h1>Stores</h1>
+{% if stores %}
+<ul>
+{% for store in stores %}
+  <li>
+    <a href="{% url 'store_detail' store.id %}">{{ store.name }}</a>
+    &mdash; {{ store.address.city }}, {{ store.address.state }}
+  </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No stores found.</p>
+{% endif %}
+<p><a href="{% url 'index' %}">Back to all records</a></p>
+</body>
+</html>

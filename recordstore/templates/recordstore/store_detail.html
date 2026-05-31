@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ store.name }}</title></head>
+<body>
+<h1>{{ store.name }}</h1>
+<p>{{ store.address.street }}, {{ store.address.city }}, {{ store.address.state }} {{ store.address.zip }}</p>
+<h2>Inventory</h2>
+{% if inventory %}
+<table>
+  <tr><th>Artist</th><th>Album</th><th>Genre</th><th>Price</th><th>In Stock</th></tr>
+  {% for item in inventory %}
+  <tr>
+    <td>{{ item.record.artist }}</td>
+    <td><a href="{% url 'record_detail' item.record.id %}">{{ item.record.album }}</a></td>
+    <td>{{ item.record.genre|default:"&mdash;" }}</td>
+    <td>${{ item.record.price }}</td>
+    <td>{{ item.quantity }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No inventory yet.</p>
+{% endif %}
+<p><a href="{% url 'store_list' %}">Back to all stores</a></p>
+</body>
+</html>
