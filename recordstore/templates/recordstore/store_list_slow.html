@@ -1,0 +1,51 @@
+{% extends "recordstore/base.html" %}
+
+{% block title %}Stores (Debug View){% endblock %}
+{% block nav_stores %}active{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-bug me-2"></i>Stores — Debug View</h1>
+    <p>This view has a known performance issue. Can you spot it?</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-warning">
+  <strong>Interview task:</strong> This view is functionally correct but has a significant performance problem.
+  Identify the issue and fix it in <code>views.stores_slow</code>.
+</div>
+
+{% if stores %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for store in stores %}
+  <div class="col">
+    <div class="card h-100 p-4">
+      <h5 class="card-title mb-1">
+        <a href="{% url 'store_detail' store.id %}">{{ store.name }}</a>
+      </h5>
+      {# N+1: store.address fires a query per store row #}
+      <p class="address-block mb-2">
+        <i class="bi bi-geo-alt-fill"></i>
+        {{ store.address.street }}, {{ store.address.city }}, {{ store.address.state }}
+      </p>
+      {# N+1: store.inventory_set.all fires a query per store, then record per item #}
+      <p class="text-muted" style="font-size:0.85rem;">
+        {{ store.inventory_set.count }} title{{ store.inventory_set.count|pluralize }} in inventory
+      </p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No stores found.</p>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{% url 'store_list' %}" class="btn btn-outline-dark">
+    <i class="bi bi-arrow-left me-1"></i>Back to stores (optimized)
+  </a>
+</div>
+{% endblock %}

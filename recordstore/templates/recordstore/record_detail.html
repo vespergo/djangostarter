@@ -1,21 +1,106 @@
-<!DOCTYPE html>
-<html>
-<head><title>{{ record }}</title></head>
-<body>
-<h1>{{ record.artist }} &mdash; {{ record.album }}</h1>
-<p>Genre: {{ record.genre|default:"Unknown" }}</p>
-<p>Released: {{ record.rel_date }}</p>
-<p>Price: ${{ record.price }}</p>
-<h2>Available at</h2>
-{% if stores %}
-<ul>
-{% for store in stores %}
-  <li><a href="{% url 'store_detail' store.id %}">{{ store.name }}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<p>Not available at any store.</p>
-{% endif %}
-<p><a href="{% url 'index' %}">Back to all records</a></p>
-</body>
-</html>
+{% extends "recordstore/base.html" %}
+
+{% block title %}{{ record }}{% endblock %}
+{% block nav_records %}active{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div class="container">
+    <p class="text-muted mb-1" style="font-size:0.85rem;">
+      <a href="{% url 'index' %}" class="text-decoration-none" style="color:#aaa;">Records</a>
+      <i class="bi bi-chevron-right mx-1" style="font-size:0.75rem;"></i>{{ record.album }}
+    </p>
+    <h1>{{ record.album }}</h1>
+    <p>{{ record.artist }}</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card p-4 mb-3">
+      <h5 class="fw-bold mb-3">Details</h5>
+      <dl class="mb-0">
+        <dt class="text-muted" style="font-size:0.8rem;">ARTIST</dt>
+        <dd class="mb-3">{{ record.artist }}</dd>
+        <dt class="text-muted" style="font-size:0.8rem;">ALBUM</dt>
+        <dd class="mb-3">{{ record.album }}</dd>
+        <dt class="text-muted" style="font-size:0.8rem;">GENRE</dt>
+        <dd class="mb-3">
+          {% if record.genre %}
+          <span class="badge-genre">{{ record.genre }}</span>
+          {% else %}
+          <span class="text-muted">Unknown</span>
+          {% endif %}
+        </dd>
+        <dt class="text-muted" style="font-size:0.8rem;">RELEASED</dt>
+        <dd class="mb-3">{{ record.rel_date|date:"F j, Y" }}</dd>
+        <dt class="text-muted" style="font-size:0.8rem;">PRICE</dt>
+        <dd class="mb-0 price-tag">${{ record.price }}</dd>
+      </dl>
+    </div>
+
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'wishlist_toggle' record.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-wishlist w-100 {% if in_wishlist %}active{% endif %}">
+        <i class="bi bi-heart{% if in_wishlist %}-fill{% endif %} me-1"></i>
+        {% if in_wishlist %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}
+      </button>
+    </form>
+    {% else %}
+    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-secondary w-100">
+      <i class="bi bi-heart me-1"></i> Log in to add to Wishlist
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="col-md-8">
+    <div class="card p-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-shop me-2"></i>Available At</h5>
+      {% if inventory %}
+      <div class="list-group list-group-flush">
+        {% for item in inventory %}
+        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+          <div>
+            <a href="{% url 'store_detail' item.store.id %}" class="fw-semibold text-decoration-none text-dark">
+              {{ item.store.name }}
+            </a>
+            <div class="text-muted" style="font-size:0.85rem;">
+              <i class="bi bi-geo-alt me-1"></i>{{ item.store.address.city }}, {{ item.store.address.state }}
+            </div>
+          </div>
+          <div class="text-end">
+            {% if item.quantity == 0 %}
+            <span class="stock-badge out-of-stock d-block mb-1">Out of stock</span>
+            {% elif item.quantity <= 3 %}
+            <span class="stock-badge low-stock d-block mb-1">{{ item.quantity }} left</span>
+            {% else %}
+            <span class="stock-badge in-stock d-block mb-1">{{ item.quantity }} in stock</span>
+            {% endif %}
+            {% if item.quantity > 0 %}
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'purchase' record.id item.store.id %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-dark">
+                <i class="bi bi-bag me-1"></i>Buy
+              </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-outline-secondary">
+              Log in to buy
+            </a>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted">Not available at any store.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

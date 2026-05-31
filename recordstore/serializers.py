@@ -1,11 +1,22 @@
 from rest_framework import serializers
-from .models import Record, Address, Store, Inventory
+from .models import Record, Address, Store, Inventory, Genre
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = '__all__'
 
 
 class RecordSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(read_only=True)
+    genre_id = serializers.PrimaryKeyRelatedField(
+        queryset=Genre.objects.all(), source='genre', write_only=True, allow_null=True, required=False
+    )
+
     class Meta:
         model = Record
-        fields = '__all__'
+        fields = ['id', 'artist', 'album', 'genre', 'genre_id', 'rel_date', 'price']
 
 
 class AddressSerializer(serializers.ModelSerializer):

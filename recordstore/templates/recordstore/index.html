@@ -1,24 +1,127 @@
-<!DOCTYPE html>
-<html>
-<head><title>Record Store</title></head>
-<body>
-<h1>Records</h1>
-<form method="get">
-  <input type="text" name="q" value="{{ query }}" placeholder="Search artist or album...">
-  <button type="submit">Search</button>
-</form>
-{% if record_list %}
-<ul>
-{% for record in record_list %}
-  <li>
-    <a href="{% url 'record_detail' record.id %}">{{ record.artist }} &mdash; {{ record.album }}</a>
-    (${{ record.price }}, {{ record.rel_date }})
-  </li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No records found.</p>
+{% extends "recordstore/base.html" %}
+
+{% block title %}Records{% endblock %}
+{% block nav_records %}active{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-music-note-list me-2"></i>Records</h1>
+    <p>Browse the full catalog</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4 align-items-end">
+  <div class="col-md-5">
+    <form method="get" id="search-form">
+      <input type="hidden" name="genre" value="{{ selected_genre }}">
+      <input type="hidden" name="sort" value="{{ sort }}">
+      <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search artist or album...">
+        <button type="submit" class="btn btn-dark">Search</button>
+        {% if query %}<a href="{% url 'index' %}?genre={{ selected_genre }}&sort={{ sort }}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div class="col-md-3">
+    <select class="form-select" onchange="applyFilter('genre', this.value)">
+      <option value="">All Genres</option>
+      {% for genre in genres %}
+      <option value="{{ genre.id }}" {% if selected_genre == genre.id|stringformat:'s' %}selected{% endif %}>{{ genre.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <select class="form-select" onchange="applyFilter('sort', this.value)">
+      <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Newest first</option>
+      <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Oldest first</option>
+      <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: low to high</option>
+      <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: high to low</option>
+      <option value="artist" {% if sort == 'artist' %}selected{% endif %}>Artist A–Z</option>
+    </select>
+  </div>
+</div>
+
+{% if query or selected_genre %}
+<p class="text-muted mb-3">
+  {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+  {% if query %}for <strong>"{{ query }}"</strong>{% endif %}
+</p>
 {% endif %}
-<p><a href="{% url 'store_list' %}">Browse Stores</a></p>
-</body>
-</html>
+
+{% if page_obj.object_list %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for record in page_obj %}
+  <div class="col">
+    <div class="card h-100 p-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          {% if record.genre %}
+          <span class="badge-genre">{{ record.genre }}</span>
+          {% else %}
+          <span></span>
+          {% endif %}
+          <span class="price-tag">${{ record.price }}</span>
+        </div>
+        <h5 class="card-title mt-2">
+          <a href="{% url 'record_detail' record.id %}">{{ record.album }}</a>
+        </h5>
+        <p class="card-text text-muted mb-1">
+          <i class="bi bi-person me-1"></i>{{ record.artist }}
+        </p>
+        <p class="card-text text-muted" style="font-size:0.85rem;">
+          <i class="bi bi-calendar me-1"></i>{{ record.rel_date|date:"Y" }}
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?q={{ query }}&genre={{ selected_genre }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">
+        <i class="bi bi-chevron-left"></i>
+      </a>
+    </li>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+      <a class="page-link" href="?q={{ query }}&genre={{ selected_genre }}&sort={{ sort }}&page={{ num }}">{{ num }}</a>
+    </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?q={{ query }}&genre={{ selected_genre }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">
+        <i class="bi bi-chevron-right"></i>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-vinyl" style="font-size:3rem;"></i>
+  <p class="mt-3">No records found.</p>
+</div>
+{% endif %}
+
+<script>
+function applyFilter(param, value) {
+  const url = new URL(window.location);
+  url.searchParams.set(param, value);
+  url.searchParams.delete('page');
+  window.location = url;
+}
+</script>
+{% endblock %}

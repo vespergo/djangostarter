@@ -1,20 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head><title>Stores</title></head>
-<body>
-<h1>Stores</h1>
+{% extends "recordstore/base.html" %}
+
+{% block title %}Stores{% endblock %}
+{% block nav_stores %}active{% endblock %}
+
+{% block page_header %}
+<div class="page-header">
+  <div class="container">
+    <h1><i class="bi bi-shop me-2"></i>Stores</h1>
+    <p>{{ stores|length }} location{{ stores|length|pluralize }}</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
 {% if stores %}
-<ul>
-{% for store in stores %}
-  <li>
-    <a href="{% url 'store_detail' store.id %}">{{ store.name }}</a>
-    &mdash; {{ store.address.city }}, {{ store.address.state }}
-  </li>
-{% endfor %}
-</ul>
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for store in stores %}
+  <div class="col">
+    <div class="card h-100 p-4">
+      <div class="card-body p-0">
+        <h5 class="card-title mb-1">
+          <a href="{% url 'store_detail' store.id %}">{{ store.name }}</a>
+        </h5>
+        <p class="address-block mb-3">
+          <i class="bi bi-geo-alt-fill"></i>
+          {{ store.address.street }}, {{ store.address.city }}, {{ store.address.state }} {{ store.address.zip }}
+        </p>
+        <a href="{% url 'store_detail' store.id %}" class="btn btn-sm btn-outline-dark">
+          View Inventory <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 {% else %}
-<p>No stores found.</p>
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-shop" style="font-size:3rem;"></i>
+  <p class="mt-3">No stores found.</p>
+</div>
 {% endif %}
-<p><a href="{% url 'index' %}">Back to all records</a></p>
-</body>
-</html>
+{% endblock %}
